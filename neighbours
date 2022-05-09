@@ -1,0 +1,13 @@
+nbhrs :: [[Int]] -> (Int,Int) -> [(Int,Int)]
+-- insert list of list 
+-- nbhrs [[1,2],[2,2]] (1,1)
+-- [(0,0),(0,1),(1,0),(1,1)]
+nbhrs count (p,q)
+  = filter inGrid [ (p-1,q-1), (p-1,q), (p-1,q+1),
+                    (p,q-1),   (p,q),   (p,q+1),
+		    (p+1,q-1), (p+1,q), (p+1,q+1) ]
+    where
+    inGrid (s,t) = 0<=s && s <= rows &&
+                   0<=t && t <= cols
+    rows = length count - 1
+    cols = length (head count) -1

@@ -27,8 +27,13 @@ testing = do
       print target
 
      
--- fromLocation :: Location -> String
--- fromLocation x = Location x
+fromLocation :: Location -> String
+fromLocation (Location letter number) =
+    let 
+        x = case letter of { 0 -> 'A'; 1 -> 'B'; 2 -> 'C'; 3 -> 'D'; 4 -> 'E'; 5 -> 'F'; 6 -> 'G'; 7 -> 'H';}
+        y = case number of { 0 -> '0'; 1 -> '1'; 2 -> '2'; 3 -> '3'; 4 -> '4'; 5 -> '5'; 6 -> '6'; 7 -> '7';}
+    in case (x,y) of
+        (x,y) -> [x,y]
 
 
 -- make grid of locations

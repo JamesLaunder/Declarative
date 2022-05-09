@@ -27,6 +27,7 @@
 
 
 import Data.Char (toUpper)
+import Data.Maybe
 type Location2 = (Int, Int)
 data Point = Point Int Int
 data Location = Location Int Int
@@ -52,11 +53,10 @@ replace2D v (x,y) = replace y (replace x (const v))
 parseAsCoord :: String -> Maybe Location
 parseAsCoord [letter, number] =
   let
-    maybeX = case toUpper letter of { 'A' -> 0; 'B' -> 1; 'C' -> 2; 'D' -> 3; 'E' -> 4; 'F' -> 5; 'G' -> 6; 'H' -> 7;}
-    maybeY = case number of { '1' -> 0; '2' -> 1; '3' -> 2; '4' -> 3;}
+    maybeX = case toUpper letter of { 'A' -> Just 0; 'B' -> Just 1; 'C' -> Just 2; 'D' -> Just 3; 'E' -> Just 4; 'F' -> Just 5; 'G' -> Just 6; 'H' -> Just 7; _ -> Nothing}
+    maybeY = case number of { '1' -> Just 0; '2' -> Just 1; '3' -> Just 2; '4' -> Just 3; _ -> Nothing}
   in case (maybeX, maybeY) of
-    (x, y) -> Just (Location x y)
-    _ -> Nothing
+    (x, y) -> Just (Location (fromJust x) (fromJust y))
 parseAsCoord _ = Nothing
 
 {-

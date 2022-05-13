@@ -35,6 +35,22 @@ fromLocation (Location letter number) =
     in case (x,y) of
         (x,y) -> [x,y]
 
+locationToInt :: Location -> (Int,Int)
+locationToInt (Location x y) = (x,y)
+
+-- return true for a hit
+hit :: Location -> Location -> Bool
+hit p q 
+  | p == q = True
+  | otherwise =  False
+
+-- This is true if one away
+nearBy1 :: Location -> Location -> Bool
+nearBy1 (Location x1 y1) (Location x2 y2) = abs (x1-x2) <= 1 && abs (y1-y2) <=1
+
+-- True for one 2 away
+nearBy2 :: Location -> Location -> Bool
+nearBy2 (Location x1 y1) (Location x2 y2) = abs (x1-x2) <= 2 && abs (y1-y2) <=2
 
 -- make grid of locations
 -- grid :: Int -> Int -> Location -> [[Location]]

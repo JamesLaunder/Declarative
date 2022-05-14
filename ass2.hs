@@ -2,6 +2,7 @@
 --               GameState, initialGuess, nextGuess) where
 
 import Data.Char (toUpper)
+import Data.List
 import Data.Maybe
 type GameState = ()
 data Location = Location Int Int
@@ -57,17 +58,37 @@ nearBy2 (Location x1 y1) (Location x2 y2) = abs (x1-x2) <= 2 && abs (y1-y2) <=2
 
 -- FILTER TESTING
 filterTest :: [Location] -> [Location] -> Int
-filterTest xs ys = length [x | x <- xs, y <- ys, nearBy2 x y]
+filterTest xs ys = length (nub [x | x <- xs, y <- ys, nearBy2 x y])
+
+feedback :: [Location] -> [Location] -> (Int,Int,Int)
+feedback xs ys = (length [x | x <- xs, y <- ys, hit x y], length (nub [x | x <- xs, y <- ys, nearBy1 x y]), length (nub [x | x <- xs, y <- ys, nearBy2 x y]))
+
+-- THE LINE BELOW WORKS FOR TEST CASE 
+-- feedback [(Location 0 0), (Location 3 1), (Location 1 2)] [(Location 3 1), (Location 1 2), (Location 0 0)]
+-- RETURNS (3,0,4)
+-- feedback xs ys = (length [x | x <- xs, y <- ys, hit x y], length [x | x <- xs, y <- ys, nearBy1 x y], length [x | x <- xs, y <- ys, nearBy2 x y])
+
+
+
 --matches xs ys = length [x | x <- xs, y <- ys, x == y]
 
+-- TESTING TAKEWHILE
+-- TESTCASE  testWhile [(Location 0 0), (Location 3 1), (Location 1 2)] (Location 1 2) = 2 SHOULD = 1
+-- testWhile :: [Location] -> Location -> Int
+-- testWhile do x <- xs y <- ys
+--   if (nearBy2 x y) then x else 0
+
+-- do x <- xs
+--      y <- ys
+--      if (x /= y) then [(x, y)] else []
+-- [bla z|n<-[0..], let z = foo n, z < 42]
+-- map bla (takeWhile (<42) (map foo [0..]))
 -- feedback 
 -- list of targets, list of shots, output count
-feedback :: [Location] -> [Location] -> (Int,Int,Int)
-feedback xs y:ys 
-  | subFeedback xs y
-  | otherwise subFeedback xs ys
-subFeedback :: [Location] -> Location -> (Int,Int,Int)
-subFeedback xs y = (length [x | x <- xs, hit x y], length [x | x <- xs, nearBy1 x y], length [x | x <- xs, nearBy2 x y]) 
+-- feedback :: [Location] -> [Location] -> (Int,Int,Int)
+-- feedback xs y:ys 
+--   | subFeedback xs y
+--   | otherwise subFeedback xs ys
 
 
 -- this wont work because its going to count multiple times for an input.

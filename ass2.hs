@@ -46,21 +46,28 @@ hit p q
 
 -- This is true if one away
 nearBy1 :: Location -> Location -> Bool
+nearBy1 p q | p == q = False
 nearBy1 (Location x1 y1) (Location x2 y2) = abs (x1-x2) <= 1 && abs (y1-y2) <=1
 
 -- True for one 2 away
 nearBy2 :: Location -> Location -> Bool
+nearBy2 p q | p == q = False
+nearBy2 (Location x1 y1) (Location x2 y2) | abs (x1-x2) <= 1 && abs (y1-y2) <=1 = False
 nearBy2 (Location x1 y1) (Location x2 y2) = abs (x1-x2) <= 2 && abs (y1-y2) <=2
 
 -- FILTER TESTING
 filterTest :: [Location] -> [Location] -> Int
-filterTest xs ys = length [x | x <- xs, y <- ys, hit x y]
+filterTest xs ys = length [x | x <- xs, y <- ys, nearBy2 x y]
 --matches xs ys = length [x | x <- xs, y <- ys, x == y]
 
 -- feedback 
 -- list of targets, list of shots, output count
 feedback :: [Location] -> [Location] -> (Int,Int,Int)
-feedback xs ys = (length [x | x <- xs, y <- ys, hit x y], length [x | x <- xs, y <- ys, hit x y], length [x | x <- xs, y <- ys, hit x y]) 
+feedback xs y:ys 
+  | subFeedback xs y
+  | otherwise subFeedback xs ys
+subFeedback :: [Location] -> Location -> (Int,Int,Int)
+subFeedback xs y = (length [x | x <- xs, hit x y], length [x | x <- xs, nearBy1 x y], length [x | x <- xs, nearBy2 x y]) 
 
 
 -- this wont work because its going to count multiple times for an input.

@@ -71,8 +71,10 @@ initialGuess = ([(Location 1 0), (Location 2 2), (Location 4 4)], ())
 nextGuess :: ([Location],GameState) -> (Int,Int,Int) -> ([Location], GameState)
 nextGuess (xs, _) (y,z,k) = (take 3 (getAllLocs (last xs)), ())
 
+-- this generates 3 locations next to each other from the last guess value
+-- e.g. last guess is Location 2 0 it will generate [Location 3 1...]
 getAllLocs :: Location -> [Location]
-getAllLocs (Location x1 y1) = [(Location x y)| x <- [x1..7], y <- [y1..3]]
+getAllLocs (Location x1 y1) = [(Location x y)| x <- [x1+1..7], y <- [y1+1..3]]
 
 
 

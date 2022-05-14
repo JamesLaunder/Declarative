@@ -1,5 +1,5 @@
--- module Ass2 (Location, toLocation, fromLocation, feedback,
---               GameState, initialGuess, nextGuess) where
+module Ass2 (Location, toLocation, fromLocation, feedback,
+              GameState, initialGuess, nextGuess) where
 
 import Data.Char (toUpper)
 import Data.List
@@ -61,20 +61,22 @@ filterTest :: [Location] -> [Location] -> Int
 filterTest xs ys = length (nub [x | x <- xs, y <- ys, nearBy2 x y])
 
 feedback :: [Location] -> [Location] -> (Int,Int,Int)
-feedback xs ys = (length [x | x <- xs, y <- ys, hit x y], length (nub [x | x <- xs, y <- ys, nearBy1 x y]), length (nub [x | x <- xs, y <- ys, nearBy2 x y]))
+feedback xs ys = (length [x | x <- xs, y <- ys, hit x y], 0, 0) -- this is being used to test the nextguess function so it exits when 3 found
+-- feedback xs ys = (length [x | x <- xs, y <- ys, hit x y], length (nub [x | x <- xs, y <- ys, nearBy1 x y]), length (nub [x | x <- xs, y <- ys, nearBy2 x y]))
 
 initialGuess :: ([Location],GameState)
-initialGuess = ([(Location 1 0), (Location 2 2), (Location 4 4)], ())
+initialGuess = ([Location 1 0, Location 2 2, Location 0 0], ()) -- this is the initial guess
 
 -- This kinda works
 -- it iterates properly but it doesnt guess every possible combination cus im dumb so it never gets it right
 nextGuess :: ([Location],GameState) -> (Int,Int,Int) -> ([Location], GameState)
+-- nextGuess (xs, _) (y,z,k) = ([Location 5 0, Location 3 1, Location 6 3], ()) -- this is the correct guess for the set test case
 nextGuess (xs, _) (y,z,k) = (take 3 (getAllLocs (last xs)), ())
 
 -- this generates 3 locations next to each other from the last guess value
 -- e.g. last guess is Location 2 0 it will generate [Location 3 1...]
 getAllLocs :: Location -> [Location]
-getAllLocs (Location x1 y1) = [(Location x y)| x <- [x1+1..7], y <- [y1+1..3]]
+getAllLocs (Location x1 y1) = [(Location x y)| x <- [x1..7], y <- [y1..3]]
 
 
 

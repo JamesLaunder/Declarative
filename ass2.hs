@@ -52,15 +52,22 @@ nearBy1 (Location x1 y1) (Location x2 y2) = abs (x1-x2) <= 1 && abs (y1-y2) <=1
 nearBy2 :: Location -> Location -> Bool
 nearBy2 (Location x1 y1) (Location x2 y2) = abs (x1-x2) <= 2 && abs (y1-y2) <=2
 
+-- FILTER TESTING
+filterTest :: [Location] -> [Location] -> Int
+filterTest xs ys = length [x | x <- xs, y <- ys, hit x y]
+--matches xs ys = length [x | x <- xs, y <- ys, x == y]
+
 -- feedback 
 -- list of targets, list of shots, output count
 feedback :: [Location] -> [Location] -> (Int,Int,Int)
-feedback target shot = ((something $ filter (x, y)), (something $ filter (x,y)), (something $ filter (x,y)) 
+feedback xs ys = (length [x | x <- xs, y <- ys, hit x y], length [x | x <- xs, y <- ys, hit x y], length [x | x <- xs, y <- ys, hit x y]) 
+
+
 -- this wont work because its going to count multiple times for an input.
 -- i dont really know how to implement this right now as cant really use counters in haskell
 -- need to also return it in the right format somehow???????
 -- idek how to return in this format rn
- 
+
 {-
   get first shot and chech against all locations
   in order hit, nearby1, nearby2 if true exit and do next shot

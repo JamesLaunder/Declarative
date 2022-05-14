@@ -63,6 +63,21 @@ filterTest xs ys = length (nub [x | x <- xs, y <- ys, nearBy2 x y])
 feedback :: [Location] -> [Location] -> (Int,Int,Int)
 feedback xs ys = (length [x | x <- xs, y <- ys, hit x y], length (nub [x | x <- xs, y <- ys, nearBy1 x y]), length (nub [x | x <- xs, y <- ys, nearBy2 x y]))
 
+initialGuess :: ([Location],GameState)
+initialGuess = ([(Location 1 0), (Location 2 2), (Location 4 4)], ())
+
+-- This kinda works
+-- it iterates properly but it doesnt guess every possible combination cus im dumb so it never gets it right
+nextGuess :: ([Location],GameState) -> (Int,Int,Int) -> ([Location], GameState)
+nextGuess (xs, _) (y,z,k) = (take 3 (getAllLocs (last xs)), ())
+
+getAllLocs :: Location -> [Location]
+getAllLocs (Location x1 y1) = [(Location x y)| x <- [x1..7], y <- [y1..3]]
+
+
+
+
+
 -- THE LINE BELOW WORKS FOR TEST CASE 
 -- feedback [(Location 0 0), (Location 3 1), (Location 1 2)] [(Location 3 1), (Location 1 2), (Location 0 0)]
 -- RETURNS (3,0,4)

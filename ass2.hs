@@ -48,23 +48,23 @@ hit p q
 -- This is true if one away
 nearBy1 :: Location -> Location -> Bool
 nearBy1 p q | p == q = False
-nearBy1 (Location x1 y1) (Location x2 y2) = abs (x1-x2) == 1 && abs (y1-y2) ==1
+nearBy1 (Location x1 y1) (Location x2 y2) = abs (x1-x2) <= 1 && abs (y1-y2) <=1
 
 -- True for one 2 away
--- ISSUE WAS "<" BEING USED , CHANGED @ 4:40 15/05/2022 to == thus stopping slipping from occuring  
 nearBy2 :: Location -> Location -> Bool
 nearBy2 p q | p == q = False
-nearBy2 (Location x1 y1) (Location x2 y2) | abs (x1-x2) == 1 && abs (y1-y2) ==1 = False
-nearBy2 (Location x1 y1) (Location x2 y2) = abs (x1-x2) == 2 && abs (y1-y2) ==2
+nearBy2 (Location x1 y1) (Location x2 y2) | abs (x1-x2) <= 1 && abs (y1-y2) <=1 = False
+nearBy2 (Location x1 y1) (Location x2 y2) = abs (x1-x2) <= 2 && abs (y1-y2) <=2
 
 -- FILTER TESTING
-filterTest :: [Location] -> [Location] -> Int
-filterTest xs ys = length (nub [x | x <- xs, y <- ys, nearBy2 x y])
+filterTest :: [Location] -> [Location] -> ([Location], [Location], [Location])
+filterTest ys xs =   ([x | x <- xs, y <- ys, hit y x] , nub(nub([x | x <- xs, y <- ys, nearBy1 y x])\\ [x | x <- xs, y <- ys, hit y x]) , nub (nub ([x | x <- xs, y <- ys, nearBy2 y x]) \\ ([x | x <- xs, y <- ys, hit y x] ++ [x | x <- xs, y <- ys, nearBy1 y x])))
 
+-- Feedback working 100% now
 feedback :: [Location] -> [Location] -> (Int,Int,Int)
-feedback xs ys = ( length( nub [x | x <- xs, y <- ys, hit x y]),
- length (nub [x | x <- xs, y <- ys, nearBy1 x y]), 
- length (nub [x | x <- xs, y <- ys, nearBy2 x y]))
+feedback ys xs = ( length( [x | x <- xs, y <- ys, hit y x]),
+ length ( nub(nub([x | x <- xs, y <- ys, nearBy1 y x])\\ [x | x <- xs, y <- ys, hit y x])), 
+ length (nub (nub ([x | x <- xs, y <- ys, nearBy2 y x]) \\ ([x | x <- xs, y <- ys, hit y x] ++ [x | x <- xs, y <- ys, nearBy1 y x]))))
 
 --feedback xs ys = (length [x | x <- xs, y <- ys, hit x y], 0, 0) -- this is being used to test the nextguess function so it exits when 3 found
 -- feedback xs ys = (length [x | x <- xs, y <- ys, hit x y], length (nub [x | x <- xs, y <- ys, nearBy1 x y]), length (nub [x | x <- xs, y <- ys, nearBy2 x y]))

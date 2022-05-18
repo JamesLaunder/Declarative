@@ -4,7 +4,7 @@ module Ass2 (Location, toLocation, fromLocation, feedback,
 import Data.Char (toUpper)
 import Data.List
 import Data.Maybe
-type GameState = ()
+type GameState = [[Location]]
 data Location = Location Int Int
     deriving (Eq, Show)
 
@@ -70,19 +70,31 @@ feedback ys xs = ( length( [x | x <- xs, y <- ys, hit y x]),
 -- feedback xs ys = (length [x | x <- xs, y <- ys, hit x y], length (nub [x | x <- xs, y <- ys, nearBy1 x y]), length (nub [x | x <- xs, y <- ys, nearBy2 x y]))
 
 initialGuess :: ([Location],GameState)
-initialGuess = ([Location 1 0, Location 2 2, Location 0 0], ()) -- this is the initial guess
+initialGuess = ([Location 0 0, Location 0 0, Location 0 0], locs) -- this is the initial guess
 
 -- This kinda works
 -- it iterates properly but it doesnt guess every possible combination cus im dumb so it never gets it right
 nextGuess :: ([Location],GameState) -> (Int,Int,Int) -> ([Location], GameState)
-nextGuess (xs, _) (y,z,k) = ([Location 5 0, Location 3 1, Location 6 3], ()) -- this is the correct guess for the set test case
+-- nextGuess (xs, _) (y,z,k) = ([Location 5 0, Location 3 1, Location 6 3], ()) -- this is the correct guess for the set test case
 -- nextGuess (xs, _) (y,z,k) = (take 3 (getAllLocs (last xs)), ())
-
+nextGuess (xs, ys) (y,z,k) = (ys !! ((length xs) `div` 3), drop 1 ys)
 -- this generates 3 locations next to each other from the last guess value
 -- e.g. last guess is Location 2 0 it will generate [Location 3 1...]
 getAllLocs :: Location -> [Location]
 getAllLocs (Location x1 y1) = [(Location x y)| x <- [x1..7], y <- [y1..3]]
 
+-- getLocs :: [Location] -> [Location]
+-- getLocs xs = xs \\ locs 
+
+locs :: [[Location]]
+locs = combos 3 allLocs
+
+allLocs :: [Location]
+allLocs = [(Location x y)| x <- [0..7], y <- [0..3]]
+
+combos :: Int -> [Location] -> [[Location]]
+combos 0 lst = [[]]
+combos n lst = [x:xs | x <- lst, xs <- combos (n-1) lst]
 
 
 

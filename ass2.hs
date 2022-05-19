@@ -58,7 +58,7 @@ initialGuess = ([Location 0 1, Location 0 2, Location 0 0], locs) -- this is the
 -- it iterates properly but it doesnt guess every possible combination cus im dumb so it never gets it right
 nextGuess :: ([Location],GameState) -> (Int,Int,Int) -> ([Location], GameState)
 nextGuess (xs, ys) (0,0,0) = (head ys, squares xs)
-nextGuess (xs, ys) (0,0,3) = (head ys, return2A xs)
+-- nextGuess (xs, ys) (0,0,3) = (head ys, return2A xs)
 -- nextGuess (xs, ys) (0,3,0) = (head ys, return1A xs)
 nextGuess (xs, ys) (_,_,_) = (head ys, drop 1 ys)
 

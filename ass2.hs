@@ -57,8 +57,10 @@ initialGuess = ([Location 0 1, Location 0 2, Location 0 0], locs) -- this is the
 -- This kinda works
 -- it iterates properly but it doesnt guess every possible combination cus im dumb so it never gets it right
 nextGuess :: ([Location],GameState) -> (Int,Int,Int) -> ([Location], GameState)
-nextGuess (xs, ys) (0,0,0) = (ys !! ((length xs) `div` 3), squares xs)
-nextGuess (xs, ys) (_,_,_) = (ys !! ((length xs) `div` 3), drop 1 ys)
+nextGuess (xs, ys) (0,0,0) = (head ys, squares xs)
+nextGuess (xs, ys) (0,0,3) = (head ys, return2A xs)
+-- nextGuess (xs, ys) (0,3,0) = (head ys, return1A xs)
+nextGuess (xs, ys) (_,_,_) = (head ys, drop 1 ys)
 
 
 locs :: [[Location]]
@@ -68,7 +70,7 @@ allLocs :: [Location]
 allLocs = [(Location x y)| x <- [0..7], y <- [0..3]]
 
 squares :: [Location] -> [[Location]]
-squares xs = combos 3 (squaresAvailable xs)
+squares xs = combos 3 (return0 xs)
 
 squaresAvailable :: [Location] -> [Location]
 squaresAvailable xs = [(Location x y)| x <- [0..7], y <- [0..3], (Location x y) /= head xs && (Location x y) /= last xs && (Location x y) /= (xs !! 1)]
@@ -77,5 +79,23 @@ combos :: Int -> [Location] -> [[Location]]
 combos 0 lst = [[]]
 combos n lst = [(x:ys) | x:xs <- tails lst, ys <- combos (n-1) xs]
 
+feedback2 :: [Location] -> [Location] -> [Location]
+feedback2 ys xs = nub [x | x <- xs, y <- ys, squares2 y x]
 
+feedback1 :: [Location] -> [Location] -> [Location]
+feedback1 ys xs = nub [x | x <- xs, y <- ys, squares1 y x]
 
+squares2 :: Location -> Location -> Bool
+squares2 (Location x1 y1) (Location x2 y2) = abs (x1-x2) <= 2 && abs (y1-y2) <=2
+
+squares1 :: Location -> Location -> Bool
+squares1 (Location x1 y1) (Location x2 y2) = abs (x1-x2) <= 1 && abs (y1-y2) <=1
+
+return0 :: [Location] -> [Location]
+return0 xs = (allLocs \\ (feedback2 xs allLocs))
+
+return2A :: [Location] -> [[Location]]
+return2A xs = combos 3 ((feedback2 xs allLocs))
+
+return1A :: [Location] -> [[Location]]
+return1A xs = combos 3 ((feedback1 xs allLocs))

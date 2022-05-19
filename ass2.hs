@@ -4,6 +4,7 @@ module Ass2 (Location, toLocation, fromLocation, feedback,
 import Data.Char (toUpper)
 import Data.List
 import Data.Maybe
+-- type GameState = ([[Location]], [Location])
 type GameState = [[Location]]
 data Location = Location Int Int
     deriving (Eq, Show)
@@ -57,11 +58,11 @@ initialGuess = ([Location 0 1, Location 0 2, Location 0 0], locs) -- this is the
 -- This kinda works
 -- it iterates properly but it doesnt guess every possible combination cus im dumb so it never gets it right
 nextGuess :: ([Location],GameState) -> (Int,Int,Int) -> ([Location], GameState)
-nextGuess (xs, ys) (0,0,0) = (head ys, squares xs)
--- nextGuess (xs, ys) (0,0,3) = (head ys, return2A xs)
--- nextGuess (xs, ys) (0,3,0) = (head ys, return1A xs)
-nextGuess (xs, ys) (_,_,_) = (head ys, drop 1 ys)
+-- nextGuess (xs, (ys, zs)) (0,0,0) = (head ys, (squares xs,return0 xs))
+-- nextGuess (xs, (ys, zs)) (_,_,_) = (head ys, (drop 1 ys, zs))
+nextGuess (previousGuess, prevPossibilities) (x,y,z) = (head((allfeedbackchecker prevPossibilities previousGuess (x,y,z))) , ( (allfeedbackchecker prevPossibilities previousGuess (x,y,z)  )))
 
+-- nextGuess (previousGuess, previousGamestate) (x,y,z) = (head(allfeedbackchecker previousGamestate previousGuess (x,y,z)) , ( (allfeedbackchecker previousGamestate previousGuess (x,y,z)  )))
 
 locs :: [[Location]]
 locs = combos 3 allLocs
@@ -72,9 +73,6 @@ allLocs = [(Location x y)| x <- [0..7], y <- [0..3]]
 squares :: [Location] -> [[Location]]
 squares xs = combos 3 (return0 xs)
 
-squaresAvailable :: [Location] -> [Location]
-squaresAvailable xs = [(Location x y)| x <- [0..7], y <- [0..3], (Location x y) /= head xs && (Location x y) /= last xs && (Location x y) /= (xs !! 1)]
-
 combos :: Int -> [Location] -> [[Location]]
 combos 0 lst = [[]]
 combos n lst = [(x:ys) | x:xs <- tails lst, ys <- combos (n-1) xs]
@@ -82,20 +80,20 @@ combos n lst = [(x:ys) | x:xs <- tails lst, ys <- combos (n-1) xs]
 feedback2 :: [Location] -> [Location] -> [Location]
 feedback2 ys xs = nub [x | x <- xs, y <- ys, squares2 y x]
 
-feedback1 :: [Location] -> [Location] -> [Location]
-feedback1 ys xs = nub [x | x <- xs, y <- ys, squares1 y x]
-
 squares2 :: Location -> Location -> Bool
 squares2 (Location x1 y1) (Location x2 y2) = abs (x1-x2) <= 2 && abs (y1-y2) <=2
-
-squares1 :: Location -> Location -> Bool
-squares1 (Location x1 y1) (Location x2 y2) = abs (x1-x2) <= 1 && abs (y1-y2) <=1
 
 return0 :: [Location] -> [Location]
 return0 xs = (allLocs \\ (feedback2 xs allLocs))
 
-return2A :: [Location] -> [[Location]]
-return2A xs = combos 3 ((feedback2 xs allLocs))
+singlefeedbackchecker::  [Location] ->  [Location] -> (Int,Int,Int)  -> Bool
+singlefeedbackchecker xs ys (x,y,z) =    feedback xs ys  == (x,y,z)
 
-return1A :: [Location] -> [[Location]]
-return1A xs = combos 3 ((feedback1 xs allLocs))
+allfeedbackchecker :: GameState -> [Location] -> (Int,Int,Int)  -> GameState
+allfeedbackchecker combinationss ys (0,0,0) =  squares ys
+allfeedbackchecker comboss ys (x,y,z) =  [x2 | x2 <- comboss, singlefeedbackchecker x2 ys (x,y,z)]
+
+-- 
+-- allfeedbackchecker :: [[Location]] -> [Location] -> (Int,Int,Int)  ->[[Location]]
+--allfeedbackchecker combinationss ys (0,0,0) =  squares ys
+-- allfeedbackchecker combinationss ys (x,y,z) =  ([x2 | x2 <- combinationss, singlefeedbackchecker x2 ys (x,y,z)])

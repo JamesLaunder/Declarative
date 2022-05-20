@@ -5,10 +5,13 @@ import Data.Char (toUpper)
 import Data.List
 import Data.Maybe
 type GameState = ([[Location]], [Location])
--- type GameState = [[Location]]
 data Location = Location Int Int
     deriving (Eq, Show)
 
+----- PROJECT FUNCTIONS -----
+
+-- Takes in a co-ordinate in string form and returns it in a maybe Location form convert and check if its a valid location
+-- location of form int int starting at 0 to make later maths easier
 toLocation :: String -> Maybe Location
 toLocation [letter, number] =
   let
@@ -18,6 +21,8 @@ toLocation [letter, number] =
     (x, y) -> Just (Location (fromJust x) (fromJust y))
 toLocation _ = Nothing
      
+-- Takes in a Location and changes the ints to a string 
+-- this is then used to print to the terminal in the main
 fromLocation :: Location -> String
 fromLocation (Location letter number) =
     let 
@@ -26,79 +31,65 @@ fromLocation (Location letter number) =
     in case (x,y) of
         (x,y) -> [x,y]
 
--- return true for a hit
+-- Takes in a list of targets and list of guesses and returns 3 ints based on 
+-- where the targets and guess are. Using list comprehension to check the locations with a helper function
+feedback :: [Location] -> [Location] -> (Int,Int,Int)
+feedback target guess = ( length( [x | x <- guess, y <- target, hit y x]),
+ length ( (nub([x | x <- guess, y <- target, nearBy1 y x]) \\ [x | x <- guess, y <- target, hit y x])), 
+ length ( (nub ([x | x <- guess, y <- target, nearBy2 y x]) \\ ([x | x <- guess, y <- target, hit y x] ++ [x | x <- guess, y <- target, nearBy1 y x]))))
+
+-- This is the first guess to start the guessing it takes in a list of 3 Locations and a gamestate
+-- guess is hardcoded and the game state is generated with all possible guesses and board locations
+initialGuess :: ([Location],GameState)
+initialGuess = ([Location 6 3, Location 4 2, Location 2 0], (generateGuesses 3 boardLocations, boardLocations))
+
+-- Takes in an input of the last guess and game state as well as the feedback for the last guess
+-- this is passed into the feedback loop function to return a new guess and update the gamestate
+nextGuess :: ([Location],GameState) -> (Int,Int,Int) -> ([Location], GameState)
+nextGuess (prevGuess, prevState) (x,y,z) = (extractList((feedbackLoop prevState prevGuess (x,y,z))) , ( (feedbackLoop prevState prevGuess (x,y,z)  )))
+
+----- HELPER FUNCTIONS CREATED FOR THE PROJECT -----
+
+-- Takes in a target and a shot and checks if they are the same
 hit :: Location -> Location -> Bool
-hit p q 
-  | p == q = True
+hit target shot 
+  | target == shot = True
   | otherwise =  False
 
--- This is true if one away
+-- Takes in a target and a shot and checks if they are 1 away from each other
+-- on the game board 
 nearBy1 :: Location -> Location -> Bool
-nearBy1 p q | p == q = False
+nearBy1 target shot | target == shot = False
 nearBy1 (Location x1 y1) (Location x2 y2) = abs (x1-x2) <= 1 && abs (y1-y2) <=1
 
--- True for one 2 away
+-- Takes in a target and a shot and checks if they are 2 away from each other
+-- on the game board 
 nearBy2 :: Location -> Location -> Bool
-nearBy2 p q | p == q = False
+nearBy2 target shot | target == shot = False
 nearBy2 (Location x1 y1) (Location x2 y2) | abs (x1-x2) <= 1 && abs (y1-y2) <=1 = False
 nearBy2 (Location x1 y1) (Location x2 y2) = abs (x1-x2) <= 2 && abs (y1-y2) <=2
+
+-- Takes in the game state and extracts the guess for nextGuess function
+extractList :: GameState -> [Location]
+extractList (guess, _) = head guess
+
+-- generates all the possible squares on the grid
+boardLocations :: [Location]
+boardLocations = [(Location x y)| x <- [0..7], y <- [0..3]]
+
+-- recursive function that takes an int and list of locations to give all possible combinations of n size
+-- this is used to generate every possible guess based on the grids on the board
+generateGuesses :: Int -> [Location] -> [[Location]]
+generateGuesses 0 lst = [[]]
+generateGuesses n lst = [(x:ys) | x:xs <- tails lst, ys <- generateGuesses (n-1) xs]
+
+-- takes an input of game state, last guess and last feedback to output a new game state
+-- this loop checks for guess that result with the same feed back as got from the input guess
+-- these guess are the other possible guesses, this allows the possible guesses to be shrunk significantly guess
+feedbackLoop :: GameState -> [Location] -> (Int,Int,Int)  -> GameState
+feedbackLoop (remainingGuesses, remainingLocs) guess (x,y,z) =  ([x2 | x2 <- remainingGuesses, feedback x2 guess == (x,y,z)], remainingLocs)
+
 
 -- FILTER TESTING
 filterTest :: [Location] -> [Location] -> ([Location], [Location], [Location])
 filterTest ys xs =   ([x | x <- xs, y <- ys, hit y x] , nub(nub([x | x <- xs, y <- ys, nearBy1 y x])\\ [x | x <- xs, y <- ys, hit y x]) , nub (nub ([x | x <- xs, y <- ys, nearBy2 y x]) \\ ([x | x <- xs, y <- ys, hit y x] ++ [x | x <- xs, y <- ys, nearBy1 y x])))
-
--- Feedback working 100% now
-feedback :: [Location] -> [Location] -> (Int,Int,Int)
-feedback ys xs = ( length( [x | x <- xs, y <- ys, hit y x]),
- length ( nub(nub([x | x <- xs, y <- ys, nearBy1 y x])\\ [x | x <- xs, y <- ys, hit y x])), 
- length (nub (nub ([x | x <- xs, y <- ys, nearBy2 y x]) \\ ([x | x <- xs, y <- ys, hit y x] ++ [x | x <- xs, y <- ys, nearBy1 y x]))))
-
-initialGuess = ([Location 0 1, Location 0 2, Location 0 0], (locs, allLocs)) -- this is the initial guess
-
--- This kinda works
--- it iterates properly but it doesnt guess every possible combination cus im dumb so it never gets it right
-nextGuess :: ([Location],GameState) -> (Int,Int,Int) -> ([Location], GameState)
--- nextGuess (xs, ys, zs)) (0,0,0) = (head ys, (squares xs,return0 xs))
--- nextGuess (xs, (ys, zs)) (_,_,_) = (head ys, (drop 1 ys, zs))
-nextGuess (previousGuess, prevPossibilities) (x,y,z) = (newFunc((allfeedbackchecker prevPossibilities previousGuess (x,y,z))) , ( (allfeedbackchecker prevPossibilities previousGuess (x,y,z)  )))
-
--- nextGuess (previousGuess, previousGamestate) (x,y,z) = (head(allfeedbackchecker previousGamestate previousGuess (x,y,z)) , ( (allfeedbackchecker previousGamestate previousGuess (x,y,z)  )))
--- testingState :: ([Location],GameState) -> (Int,Int,Int) -> [Location]
--- testingState (previousGuess, (prevPossibilities, prevLocs)) (x,y,z) = newFunc (allfeedbackchecker (prevPossibilities,prevLocs)  previousGuess (x,y,z))
-
-newFunc :: GameState -> [Location]
-newFunc (prevPossibilities, _) = head prevPossibilities
-
-locs :: [[Location]]
-locs = combos 3 allLocs
-
-allLocs :: [Location]
-allLocs = [(Location x y)| x <- [0..7], y <- [0..3]]
-
-squares :: [Location] -> [[Location]]
-squares xs = combos 3 (return0 xs)
-
-combos :: Int -> [Location] -> [[Location]]
-combos 0 lst = [[]]
-combos n lst = [(x:ys) | x:xs <- tails lst, ys <- combos (n-1) xs]
-
-feedback2 :: [Location] -> [Location] -> [Location]
-feedback2 ys xs = nub [x | x <- xs, y <- ys, squares2 y x]
-
-squares2 :: Location -> Location -> Bool
-squares2 (Location x1 y1) (Location x2 y2) = abs (x1-x2) <= 2 && abs (y1-y2) <=2
-
-return0 :: [Location] -> [Location]
-return0 xs = (allLocs \\ (feedback2 xs allLocs))
-
-singlefeedbackchecker::  [Location] ->  [Location] -> (Int,Int,Int)  -> Bool
-singlefeedbackchecker xs ys (x,y,z) =    feedback xs ys  == (x,y,z)
-
-allfeedbackchecker :: GameState -> [Location] -> (Int,Int,Int)  -> GameState
-allfeedbackchecker (comboss, locs) ys (0,0,0) =  (squares ys, locs)
-allfeedbackchecker (comboss, locs) ys (x,y,z) =  ([x2 | x2 <- comboss, singlefeedbackchecker x2 ys (x,y,z)], locs)
-
--- 
--- allfeedbackchecker :: [[Location]] -> [Location] -> (Int,Int,Int)  ->[[Location]]
---allfeedbackchecker combinationss ys (0,0,0) =  squares ys
--- allfeedbackchecker combinationss ys (x,y,z) =  ([x2 | x2 <- combinationss, singlefeedbackchecker x2 ys (x,y,z)])

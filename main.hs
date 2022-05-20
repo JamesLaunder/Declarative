@@ -9,7 +9,14 @@ import System.Exit
 import Ass2 (Location, toLocation, fromLocation, feedback,
               GameState, initialGuess, nextGuess)
 
-testCase = "F1 D2 G4"
+-- testCase = "F1 D2 G4" -- 1
+-- testCase = "H3 H2 G3" -- 2
+-- testCase = "A3 A2 B3" -- 3
+-- testCase = "C2 E1 F3" -- 4
+-- testCase = "D3 F2 E3" -- 5
+-- testCase = "C3 F1 F3" -- 6
+-- testCase = "H1 B2 D3" --7
+testCase = "A1 D2 B3" --8
 
 -- | Main code to test Proj2 implementations within Grok. This will be run with
 -- no command line arguments, so there's no way to specify the target to search

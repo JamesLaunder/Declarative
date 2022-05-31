@@ -36,7 +36,16 @@ tree_inorder (Node l v r) = tree_inorder l ++ [v] ++ tree_inorder r
 -- Postorder traversal
 
 -- if tree balanced
+isBalanced :: BST a -> Bool
+isBalanced tree = (maxDepth tree  - minDepth tree) <= 1
 
+maxDepth :: BST a -> Int
+maxDepth Empty = 0
+maxDepth (Node l _ r) = 1 + max (maxDepth l) (maxDepth r)
+
+minDepth :: BST a -> Int
+minDepth Empty = 0
+minDepth (Node l _ r) = 1 + min (minDepth l) (minDepth r)
 -- average of the numbers in tree
 
 -- total count

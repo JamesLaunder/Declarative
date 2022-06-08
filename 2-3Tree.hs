@@ -1,3 +1,5 @@
+-- https://sortingsearching.com/2020/05/23/2-3-trees.html
+
 data Tree t =
     Empty
   | Leaf t
